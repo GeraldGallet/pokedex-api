@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Param } from '@nestjs/common';
 import { PlainPokemonPresenter } from 'src/controllers/pokemon/pokemon.presenter';
 import { PokemonId } from 'src/entities';
 import { PokemonUseCases } from 'src/useCases/pokemon/pokemon.useCases';
@@ -17,5 +17,10 @@ export class PokemonController {
     @Param('id') id: PokemonId,
   ): Promise<PlainPokemonPresenter> {
     return this.pokemonUseCases.getPlainById(id);
+  }
+
+  @Delete('/:id')
+  public async deleteById(@Param('id') id: PokemonId): Promise<void> {
+    await this.pokemonUseCases.deleteById(id);
   }
 }

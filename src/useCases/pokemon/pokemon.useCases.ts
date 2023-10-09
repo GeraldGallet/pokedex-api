@@ -26,4 +26,22 @@ export class PokemonUseCases {
   ): Promise<PlainPokemonUseCasesOutput> {
     return this.pokemonRepository.getPlainById(id);
   }
+
+  /**
+   * Delete a Pokemon from database
+   * @param id Pokemon's ID
+   * @throws NotFoundException: no pokemon with this ID was found
+   */
+  public async deleteById(id: PokemonId): Promise<void> {
+    // 2 options possibles ici :
+    // 1ère option: je vérifie l'existence de mon Pokémon avant de le supprimer
+    const pokemon = await this.getPlainById(id);
+    await this.pokemonRepository.deleteById(pokemon.id);
+
+    // 2ème option: je ne vérifie pas: de toute façon j'allais le supprimer
+    // await this.pokemonRepository.deleteById(pokemon.id)
+
+    // Les 2 sont toutes aussi valables l'une que l'autre quand on supprime une donnée de manière aussi simple
+    // Si je dois faire du traitement sur la donnée avant de la supprimer, je dois peut-être vérifier qu'elle existe
+  }
 }

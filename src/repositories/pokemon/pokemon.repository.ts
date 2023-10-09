@@ -44,4 +44,12 @@ export class PokemonRepository extends Repository<Pokemon> {
 
     throw new NotFoundException(`Pokemon: '${id}'`);
   }
+
+  /**
+   * Delete a Pokemon from database
+   * @param id Pokemon's ID
+   */
+  public async deleteById(id: PokemonId): Promise<void> {
+    await this.delete({ id });
+  }
 }

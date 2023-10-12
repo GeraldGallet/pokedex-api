@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PokemonId } from 'src/entities';
 import { PokemonRepository } from 'src/repositories/pokemon/pokemon.repository';
-import { PlainPokemonUseCasesOutput } from 'src/useCases/pokemon/pokemon.useCases.type';
+import {
+  PlainPokemonUseCasesOutput,
+  UpdatePokemonUseCasesInput,
+} from 'src/useCases/pokemon/pokemon.useCases.type';
 
 @Injectable()
 export class PokemonUseCases {
@@ -25,6 +28,19 @@ export class PokemonUseCases {
     id: PokemonId,
   ): Promise<PlainPokemonUseCasesOutput> {
     return this.pokemonRepository.getPlainById(id);
+  }
+
+  /**
+   * Update a Pokemon's data by its ID
+   * @param id Pokemon's ID
+   * @param input Data for the update
+   * @returns The updated Pokemon
+   */
+  public async updateById(
+    id: PokemonId,
+    input: UpdatePokemonUseCasesInput,
+  ): Promise<PlainPokemonUseCasesOutput> {
+    return this.pokemonRepository.updateById(id, input);
   }
 
   /**

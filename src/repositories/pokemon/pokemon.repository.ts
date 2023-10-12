@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundException } from 'src/common';
+import { PlainPokemonPresenter } from 'src/controllers/pokemon/pokemon.presenter';
 import { Pokemon, PokemonId, PokemonType, Type } from 'src/entities';
 import {
+  CreatePokemonRepositoryInput,
   PlainPokemonRepositoryOutput,
   UpdatePokemonRepositoryInput,
 } from 'src/repositories/pokemon/pokemon.repository.type';
@@ -29,6 +31,22 @@ export class PokemonRepository extends Repository<Pokemon> {
   }
 
   /**
+   * Get the last pokemon by identifier
+   * @returns Last pokemon if found, null otherwise
+   */
+  public async findLastPokemon(): Promise<PlainPokemonPresenter | null> {
+    const pokemons = await this.find({
+      order: { identifier: 'DESC' },
+      take: 1,
+      relations: { types: { type: true } },
+    });
+
+    return pokemons.length
+      ? adaptPokemonToPlainPokemonRepositoryOutput(pokemons[0])
+      : null;
+  }
+
+  /**
    * Get a pokemon's data by its ID
    * @param id Pokemon's ID
    * @returns Plain pokemon data
@@ -47,6 +65,53 @@ export class PokemonRepository extends Repository<Pokemon> {
     }
 
     throw new NotFoundException(`Pokemon: '${id}'`);
+  }
+
+  /**
+   * Create a new Pokemon
+   * @param input Data for the Pokemon to be created
+   * @returns Created pokemon
+   */
+  public async createPokemon(
+    input: CreatePokemonRepositoryInput,
+  ): Promise<PlainPokemonRepositoryOutput> {
+    const id = await this.dataSource.transaction(async (manager) => {
+      const [pokemon] = await manager.save<Pokemon>(
+        manager.create<Pokemon>(Pokemon, [
+          {
+            ...input,
+            id: v4(),
+            types: undefined,
+          },
+        ]),
+      );
+
+      if (input.types) {
+        await manager.delete<PokemonType>(PokemonType, {
+          pokemon: { id: pokemon.id },
+        });
+
+        const newTypes = await manager.find<Type>(Type, {
+          where: {
+            name: In(input.types),
+          },
+        });
+
+        await manager.save<PokemonType>(
+          newTypes.map((type) =>
+            manager.create<PokemonType>(PokemonType, {
+              id: v4(),
+              pokemon: { id: pokemon.id },
+              type,
+            }),
+          ),
+        );
+      }
+
+      return pokemon.id;
+    });
+
+    return this.getPlainById(id);
   }
 
   /**

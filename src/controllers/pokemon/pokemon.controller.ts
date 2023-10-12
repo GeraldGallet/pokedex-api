@@ -1,5 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
-import { UpdatePokemonDto } from 'src/controllers/pokemon/pokemon.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import {
+  CreatePokemonDto,
+  UpdatePokemonDto,
+} from 'src/controllers/pokemon/pokemon.dto';
 import { PlainPokemonPresenter } from 'src/controllers/pokemon/pokemon.presenter';
 import { PokemonId } from 'src/entities';
 import { PokemonUseCases } from 'src/useCases/pokemon/pokemon.useCases';
@@ -18,6 +29,13 @@ export class PokemonController {
     @Param('id') id: PokemonId,
   ): Promise<PlainPokemonPresenter> {
     return this.pokemonUseCases.getPlainById(id);
+  }
+
+  @Post()
+  public async createPokemon(
+    @Body() input: CreatePokemonDto,
+  ): Promise<PlainPokemonPresenter> {
+    return this.pokemonUseCases.createPokemon(input);
   }
 
   @Patch('/:id')

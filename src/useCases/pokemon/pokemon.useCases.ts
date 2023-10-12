@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PokemonId } from 'src/entities';
 import { PokemonRepository } from 'src/repositories/pokemon/pokemon.repository';
 import {
+  CreatePokemonUseCasesInput,
   PlainPokemonUseCasesOutput,
   UpdatePokemonUseCasesInput,
 } from 'src/useCases/pokemon/pokemon.useCases.type';
@@ -28,6 +29,24 @@ export class PokemonUseCases {
     id: PokemonId,
   ): Promise<PlainPokemonUseCasesOutput> {
     return this.pokemonRepository.getPlainById(id);
+  }
+
+  /**
+   * Create a new Pokemon
+   * @param input Data for the Pokemon to be created
+   * @returns Created pokemon
+   */
+  public async createPokemon(
+    input: CreatePokemonUseCasesInput,
+  ): Promise<PlainPokemonUseCasesOutput> {
+    const lastPokemon = await this.pokemonRepository.findLastPokemon();
+
+    let identifier = 1;
+    if (lastPokemon) {
+      identifier = lastPokemon.identifier + 1;
+    }
+
+    return this.pokemonRepository.createPokemon({ ...input, identifier });
   }
 
   /**

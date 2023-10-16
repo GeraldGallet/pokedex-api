@@ -9,9 +9,13 @@ export class PokemonType extends BaseEntity {
   @PrimaryColumn()
   id: PokemonTypeId;
 
-  @ManyToOne(() => Pokemon, (pokemon) => pokemon.types)
+  @ManyToOne(() => Pokemon, (pokemon) => pokemon.types, {
+    onDelete: 'CASCADE',
+  })
   pokemon: Pokemon;
 
-  @ManyToOne(() => Type, (type) => type.pokemonTypes)
+  @ManyToOne(() => Type, (type) => type.pokemonTypes, {
+    onDelete: 'CASCADE',
+  })
   type: Type;
 }

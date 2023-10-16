@@ -28,7 +28,7 @@ describe('PokemonRepository', () => {
       expect(result).toStrictEqual(
         pokemons.map(adaptPokemonToPlainPokemonRepositoryOutput),
       );
-      expect(true).toBeTruthy();
+      expect(true).toBeFalsy();
       expect(null).toBeNull();
     });
   });

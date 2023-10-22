@@ -1,4 +1,5 @@
 import { PokemonType } from 'src/entities/PokemonType';
+import { UserPokemon } from 'src/entities/UserPokemon';
 import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 export type PokemonId = string & { __brand: 'Pokemon' };
@@ -19,4 +20,7 @@ export class Pokemon extends BaseEntity {
 
   @OneToMany(() => PokemonType, (pokemonType) => pokemonType.pokemon)
   types: PokemonType[];
+
+  @OneToMany(() => UserPokemon, (userPokemon) => userPokemon.pokemon)
+  userPokemons: UserPokemon[];
 }

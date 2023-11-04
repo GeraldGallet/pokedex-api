@@ -9,8 +9,8 @@ export class UserPokemon {
   @PrimaryGeneratedColumn('uuid')
   id: UserPokemonId;
 
-  @Column()
-  surname: string;
+  @Column({ nullable: true })
+  surname?: string;
 
   @ManyToOne(() => Pokemon, (pokemon) => pokemon.userPokemons, {
     onDelete: 'CASCADE',

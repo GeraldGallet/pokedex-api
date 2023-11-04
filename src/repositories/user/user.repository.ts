@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InternalServerError, NotFoundException } from 'src/common';
-import { User, UserId } from 'src/entities';
+import { Pokemon, User, UserId, UserPokemon } from 'src/entities';
 import {
+  CapturePokemonRepositoryInput,
   CreateUserRepositoryInput,
+  UpdateUserRepositoryInput,
   UserRepositoryOutput,
 } from 'src/repositories/user/user.repository.type';
 import { adaptUserEntityToUserModel } from 'src/repositories/user/user.repository.utils';
@@ -25,7 +27,7 @@ export class UserRepository extends Repository<User> {
   public async getById(id: UserId): Promise<UserRepositoryOutput> {
     const user = await this.findOne({
       where: { id },
-      relations: { pokemons: { pokemon: true } },
+      relations: { pokemons: { pokemon: { types: { type: true } } } },
     });
 
     if (!user) {
@@ -33,7 +35,7 @@ export class UserRepository extends Repository<User> {
     }
 
     console.log('##### user');
-    console.log(user);
+    console.log(JSON.stringify(user, null, 2));
 
     return adaptUserEntityToUserModel(user);
   }
@@ -54,6 +56,45 @@ export class UserRepository extends Repository<User> {
     });
 
     return this.getById(id);
+  }
+
+  public async updateUser(
+    id: UserId,
+    input: UpdateUserRepositoryInput,
+  ): Promise<UserRepositoryOutput> {
+    await this.update(id, input);
+
+    return this.getById(id);
+  }
+
+  public async capturePokemon(
+    input: CapturePokemonRepositoryInput,
+  ): Promise<UserRepositoryOutput> {
+    const [user, pokemon] = await Promise.all([
+      this.findOne({ where: { id: input.userId } }),
+      this.dataSource
+        .getRepository(Pokemon)
+        .findOne({ where: { id: input.pokemonId } }),
+    ]);
+
+    console.log('##### input');
+    console.log(input);
+
+    console.log('##### pokemon');
+    console.log(pokemon);
+    if (!user) {
+      throw new NotFoundException(`User: '${input.userId}'`);
+    }
+
+    if (!pokemon) {
+      throw new NotFoundException(`Pokemon: '${input.pokemonId}'`);
+    }
+
+    await this.dataSource
+      .getRepository(UserPokemon)
+      .save([{ user, pokemon, surname: input.surname }]);
+
+    return this.getById(input.userId);
   }
 
   public async deleteUser(id: UserId): Promise<void> {

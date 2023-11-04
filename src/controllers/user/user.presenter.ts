@@ -1,12 +1,21 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { PokemonId, UserId } from 'src/entities';
 import { UserModel, UserPokemonModel } from 'src/models/user.model';
 
 export class UserPokemonPresenter {
-  surname: string;
+  @ApiProperty({ required: false })
+  surname?: string;
 
+  @ApiProperty({ type: 'string', format: 'uuid', required: false })
   evolvesTo?: PokemonId;
+
+  @ApiProperty({ type: 'integer' })
   identifier: number;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty({ isArray: true })
   types: string[];
 
   private constructor(data: UserPokemonPresenter) {
@@ -19,11 +28,16 @@ export class UserPokemonPresenter {
 }
 
 export class UserPresenter {
+  @ApiProperty({ type: 'string', format: 'uuid' })
   id: UserId;
 
+  @ApiProperty()
   firstName: string;
+
+  @ApiProperty()
   lastName: string;
 
+  @ApiProperty({ isArray: true, type: UserPokemonPresenter })
   pokemons: UserPokemonPresenter[];
 
   private constructor(data: UserPresenter) {
